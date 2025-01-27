@@ -8,6 +8,8 @@ class CartProvider with ChangeNotifier {
 
   List<Product> get cart => _items.values.map((item) => item.product).toList();
 
+  int get itemCount => _items.length;
+
   void addToCart(Product product, [int quantity = 1]) {
     if (_items.containsKey(product.id)) {
       updateQuantity(product, _items[product.id]!.quantity + quantity);

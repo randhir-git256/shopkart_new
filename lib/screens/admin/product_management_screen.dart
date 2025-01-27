@@ -23,13 +23,19 @@ class ProductManagementScreen extends StatelessWidget {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Colors.white70
-              ),
+                  color: Colors.black),
             ),
           ],
         ),
-        backgroundColor: Colors.blueGrey,
-
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -37,16 +43,16 @@ class ProductManagementScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Align(
               alignment: Alignment.topRight,
-                child: FilledButton.icon(
-                  onPressed: () => _handleAddProduct(context),
-                  icon: Icon(Icons.add),
-                  label: Text('Add New Product'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                  ),
+              child: FilledButton.icon(
+                onPressed: () => _handleAddProduct(context),
+                icon: Icon(Icons.add),
+                label: Text('Add New Product'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
                 ),
               ),
+            ),
             // child: FilledButton.icon(
             //   onPressed: () => _handleAddProduct(context),
             //   icon: Icon(Icons.add),
@@ -121,13 +127,10 @@ class ProductManagementScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           )
-
                         ],
                       )
                     ],
-
                   ),
-
                   SizedBox(height: 8),
                   Row(
                     children: [

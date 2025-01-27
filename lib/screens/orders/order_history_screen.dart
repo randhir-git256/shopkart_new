@@ -11,30 +11,34 @@ class OrderHistoryScreen extends StatelessWidget {
     final userId = Provider.of<AuthProvider>(context).user?.uid;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/logo.png', // Path to your image asset
-              height: 30, // Adjust the height as needed
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Image.asset(
+                'assets/images/logo.png', // Path to your image asset
+                height: 30, // Adjust the height as needed
+              ),
+              SizedBox(width: 10), // Adds spacing between the image and text
+              Text(
+                'Your Orders',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.black),
+              ),
+            ],
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.lightBlue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            SizedBox(width: 10), // Adds spacing between the image and text
-            Text(
-              'Your Orders',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  color: Colors.white70),
-            ),
-          ],
+          ),
         ),
-        backgroundColor: Colors.blueGrey,
-      ),
 
-      // appBar: AppBar(
-      //   title: Text('Your Orders'),
-      //   elevation: 1,
-      // ),
       body: userId == null
           ? Center(child: Text('Please login to view orders'))
           : StreamBuilder(

@@ -20,7 +20,7 @@ class DatabaseService {
     final orderData = {
       ...order,
       'user_id': userId,
-      'status': 'placed',
+      'status': 'Processing',
       'order_id': orderRef.id,
     };
 
@@ -47,6 +47,25 @@ class DatabaseService {
         });
       }
     }
+
+    await batch.commit();
+  }
+
+  Future<void> updateOrderStatus(
+      String orderId, String userId, String newStatus) async {
+    final batch = _firestore.batch();
+
+    // Update main orders collection
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    batch.update(orderRef, {'status': newStatus});
+
+    // Update user's order history
+    final userOrderRef = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('order_history')
+        .doc(orderId);
+    batch.update(userOrderRef, {'status': newStatus});
 
     await batch.commit();
   }
