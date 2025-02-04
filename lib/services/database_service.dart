@@ -1,13 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
+import '../database/local_database.dart';
+import '../services/admin_notification_service.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late final LocalDatabase _localDb;
+  bool _isInitialized = false;
 
-  Stream<List<Product>> getProducts() {
-    return _firestore.collection('products').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return Product.fromFirestore(doc.data(), doc.id);
+  DatabaseService() {
+    _initializeLocalDb();
+  }
+
+  Future<void> _initializeLocalDb() async {
+    if (!_isInitialized) {
+      _localDb = await LocalDatabase.getInstance();
+      _isInitialized = true;
+    }
+  }
+
+  Stream<List<Product>> getProducts() async* {
+    if (!_isInitialized) {
+      await _initializeLocalDb();
+    }
+
+    yield* _localDb.select(_localDb.localProducts).watch().map((products) {
+      return products.map((localProduct) {
+        return Product(
+          id: localProduct.productId,
+          name: localProduct.name,
+          price: localProduct.price,
+          description: localProduct.description,
+          imageUrl: localProduct.imageUrl,
+          quantity: localProduct.quantity,
+        );
       }).toList();
     });
   }
@@ -68,5 +94,9 @@ class DatabaseService {
     batch.update(userOrderRef, {'status': newStatus});
 
     await batch.commit();
+
+    // Send notification
+    final notificationService = AdminNotificationService();
+    await notificationService.sendOrderStatusUpdate(userId, orderId, newStatus);
   }
 }

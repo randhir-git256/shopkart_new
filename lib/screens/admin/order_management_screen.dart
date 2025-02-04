@@ -49,6 +49,15 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Row(
           children: [
             Image.asset(
@@ -61,14 +70,18 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Colors.black),
+                  color: Colors.white),
             ),
           ],
         ),
         bottom: TabBar(
+
           controller: _tabController,
+          indicatorColor: Colors.white, // Color of the indicator line
+          labelColor: Colors.white, // Color of the selected tab text
+          unselectedLabelColor: Colors.white70, // Color of the unselected tab text
           tabs: [
-            Tab(text: 'All Orders'),
+            Tab(text: 'All Orders',),
             Tab(text: 'Approved'),
             Tab(text: 'Need Approval'),
           ],

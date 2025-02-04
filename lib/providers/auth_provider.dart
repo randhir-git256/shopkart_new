@@ -131,6 +131,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import '../database/local_database.dart';
+import '../services/notification_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -138,6 +141,7 @@ class AuthProvider with ChangeNotifier {
   User? _user;
   Map<String, dynamic>? _userData;
   bool _isInitialized = false;
+  bool _isRetrying = false;
 
   // SharedPreferences keys
   static const String KEY_EMAIL = 'email';
@@ -182,11 +186,51 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _fetchUserData() async {
-    if (_user != null) {
-      final doc = await _firestore.collection('users').doc(_user!.uid).get();
-      if (doc.exists) {
-        _userData = doc.data();
-        notifyListeners();
+    if (_user != null && !_isRetrying) {
+      _isRetrying = true;
+      try {
+        // Get local database instance
+        final localDb = await LocalDatabase.getInstance();
+
+        // Try to get user from local database first
+        final localUser = await (localDb.select(localDb.localUsers)
+              ..where((user) => user.userId.equals(_user!.uid)))
+            .getSingleOrNull();
+
+        if (localUser != null) {
+          _userData = {
+            'name': localUser.name,
+            'email': localUser.email,
+            'role': localUser.role,
+          };
+          notifyListeners();
+        } else {
+          // If not in local database and online, fetch from Firestore
+          final connectivityResult = await Connectivity().checkConnectivity();
+          if (connectivityResult != ConnectivityResult.none) {
+            final doc =
+                await _firestore.collection('users').doc(_user!.uid).get();
+            if (doc.exists) {
+              _userData = doc.data();
+
+              // Save to local database
+              // await localDb.into(localDb.localUsers).insertOnConflictUpdate(
+              //       LocalUsersCompanion.insert(
+              //         userId: _user!.uid,
+              //         name: _userData!['name'] as String,
+              //         email: _userData!['email'] as String,
+              //         role: _userData!['role'] as String,
+              //       ),
+              //     );
+
+              notifyListeners();
+            }
+          }
+        }
+      } catch (e) {
+        print('Error fetching user data: $e');
+      } finally {
+        _isRetrying = false;
       }
     }
   }
@@ -199,6 +243,13 @@ class AuthProvider with ChangeNotifier {
       );
       _user = result.user;
       await _fetchUserData();
+
+      // Subscribe to notification topics
+      final notificationService = NotificationService();
+      await notificationService.subscribeToTopics(
+        _user!.uid,
+        _userData!['role'] as String,
+      );
 
       // Save credentials to SharedPreferences only during explicit login
       final prefs = await SharedPreferences.getInstance();
@@ -253,6 +304,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (_user != null) {
+      final notificationService = NotificationService();
+      await notificationService.unsubscribeFromTopics(_user!.uid);
+    }
     // Clear SharedPreferences first
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -266,5 +321,15 @@ class AuthProvider with ChangeNotifier {
 
   bool isAuthenticated() {
     return _user != null;
+  }
+
+  Future<bool> isNetworkAvailable() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
+
+  // Add this public method
+  Future<void> refreshUserData() async {
+    await _fetchUserData();
   }
 }

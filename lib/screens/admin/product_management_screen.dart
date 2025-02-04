@@ -23,7 +23,7 @@ class ProductManagementScreen extends StatelessWidget {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Colors.black),
+                  color: Colors.white),
             ),
           ],
         ),
@@ -95,83 +95,76 @@ class ProductManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(BuildContext context, Product product) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.network(product.imageUrl, width: 50),
-                      SizedBox(width: 10),
-                      Column(
-                        children: [
-                          Text(
-                            product.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            CurrencyUtils.formatPrice(product.price),
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle_outline),
-                        onPressed: () => _updateQuantity(product, -1),
-                      ),
-                      Text(
-                        '${product.quantity}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline),
-                        onPressed: () => _updateQuantity(product, 1),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Column(
+Widget _buildProductCard(BuildContext context, Product product) {
+  return Card(
+    margin: EdgeInsets.only(bottom: 16),
+    child: Padding(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () => _handleEditProduct(context, product),
+                Text(
+                  product.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteProduct(context, product),
+                SizedBox(height: 4),
+                Text(
+                  CurrencyUtils.formatPrice(product.price),
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove_circle_outline),
+                      onPressed: () => _updateQuantity(product, -1),
+                    ),
+                    Text(
+                      '${product.quantity}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline),
+                      onPressed: () => _updateQuantity(product, 1),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Column(
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.blue),
+                onPressed: () => _handleEditProduct(context, product),
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteProduct(context, product),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
-
+    ),
+  );
+}
   Future<void> _updateQuantity(Product product, int change) async {
     final newQuantity = product.quantity + change;
     if (newQuantity >= 0) {
