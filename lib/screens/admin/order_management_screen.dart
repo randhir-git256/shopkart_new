@@ -75,13 +75,15 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
           ],
         ),
         bottom: TabBar(
-
           controller: _tabController,
           indicatorColor: Colors.white, // Color of the indicator line
           labelColor: Colors.white, // Color of the selected tab text
-          unselectedLabelColor: Colors.white70, // Color of the unselected tab text
+          unselectedLabelColor:
+              Colors.white70, // Color of the unselected tab text
           tabs: [
-            Tab(text: 'All Orders',),
+            Tab(
+              text: 'All Orders',
+            ),
             Tab(text: 'Approved'),
             Tab(text: 'Need Approval'),
           ],

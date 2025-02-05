@@ -31,8 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Offset _fabPosition = Offset(20, 580); // Initial position of the FAB
   String appVersion = "Loading...";
   String _searchQuery = '';
-  late LocalDatabase localDatabase;
-  late SyncService syncService;
+  late final LocalDatabase localDatabase;
+  late final SyncService syncService;
   late Stream<ConnectivityResult> connectivityStream;
   bool isOffline = false;
 
@@ -53,10 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _initializeLocalDatabase() async {
     localDatabase = await LocalDatabase.getInstance();
-
-    // Initialize and start sync service
     syncService = SyncService(localDatabase);
-    syncService.startSync();
   }
 
   void _initializeConnectivity() {
@@ -82,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    syncService.dispose(); // Clean up subscriptions
+    syncService.dispose();
     super.dispose();
   }
 
@@ -204,6 +201,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         userData['name'][0].toUpperCase(),
                         style: TextStyle(fontSize: 30, color: Colors.blue),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blueAccent, Colors.lightBlue],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
                   ),

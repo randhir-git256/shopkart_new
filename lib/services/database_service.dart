@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 import '../database/local_database.dart';
 import '../services/admin_notification_service.dart';
+import '../services/sync_service.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -24,6 +25,7 @@ class DatabaseService {
       await _initializeLocalDb();
     }
 
+    // Always read from local database first
     yield* _localDb.select(_localDb.localProducts).watch().map((products) {
       return products.map((localProduct) {
         return Product(
@@ -98,5 +100,15 @@ class DatabaseService {
     // Send notification
     final notificationService = AdminNotificationService();
     await notificationService.sendOrderStatusUpdate(userId, orderId, newStatus);
+  }
+
+  // Add this method to force a sync when needed
+  Future<void> forceSync() async {
+    final syncService = SyncService(_localDb);
+    await Future.wait([
+      syncService.syncUsers().first,
+      syncService.syncProducts().first,
+    ]);
+    syncService.dispose();
   }
 }

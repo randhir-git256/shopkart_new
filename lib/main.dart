@@ -35,11 +35,10 @@ void main() async {
   // Initialize local database
   final database = await LocalDatabase.getInstance();
 
-  // Initialize sync service
+  // Create a global sync service instance
   final syncService = SyncService(database);
 
-  // Start sync
-  print('Starting database synchronization...');
+  // Start initial sync
   syncService.startSync();
 
   // Debug: Print database contents after 5 seconds
@@ -47,11 +46,13 @@ void main() async {
     database.printDatabaseContents();
   });
 
-  runApp(const MyApp());
+  runApp(MyApp(syncService: syncService));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final SyncService syncService;
+
+  const MyApp({super.key, required this.syncService});
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +66,9 @@ class MyApp extends StatelessWidget {
         title: 'Shopping App',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: AuthenticationWrapper(),
+        routes: {
+          '/login': (context) => LoginScreen(), // Define the login route
+        },
       ),
     );
   }
